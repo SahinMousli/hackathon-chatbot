@@ -62,7 +62,7 @@ export default function ChatPage() {
 
     const handleReset = useCallback(async () => {
         const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
-        // setMessages(msgs);
+        setMessages(msgs);
         setGoals([]);
 
         // Uncomment if you want the assistant to speak first.
