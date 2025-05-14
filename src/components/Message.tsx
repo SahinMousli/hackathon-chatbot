@@ -8,6 +8,7 @@ type MessageProps = {
 export default function Message({ role, visibleText }: MessageProps) {
   const isUser = role === 'user';
   const isSystem = role === 'system';
+  
   return (
     <>
       {!isSystem &&
