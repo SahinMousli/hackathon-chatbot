@@ -8,7 +8,7 @@ import GoalCard from 'src/components/GoalCard';
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
     content: string;
-    visibleText?: object;
+    visibleText?: string;
 };
 
 type Goal = {
@@ -68,7 +68,7 @@ export default function ChatPage() {
     }, [messages]);
 
     const handleReset = useCallback(async () => {
-        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt}]
+        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
         setMessages(msgs);
         setGoals([]);
 
@@ -98,7 +98,11 @@ export default function ChatPage() {
                 setGoals([...goals, ...newGoals]);
             }
 
-            lastMsg.visibleText = JSON.parse(lastMsg.content).text;
+            try {
+                lastMsg.visibleText = JSON.parse(lastMsg.content).text;
+            } catch {
+                lastMsg.visibleText = lastMsg.content;
+            }
 
             console.log('\n\n',result)
             setMessages(result);
@@ -111,7 +115,7 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
             <div className={styles.messagesWindow}>
                 {messages.map((msg, i) => (
-                    <Message key={i} role={msg.role} visibleText={msg.visibleText}/>
+                    <Message key={i} role={msg.role} visibleText={msg.visibleText || msg.content}/>
                 ))}
             </div>
 
