@@ -23,7 +23,7 @@ const simpleOpenAIRequest = async (payload: IChatGPTPayload) => {
 
   const completion = await openai.chat.completions.create(
     {
-      temperature: 0.7,
+      temperature: 0,
       messages: payload.history as never,
       stream: false,
       model: modelName

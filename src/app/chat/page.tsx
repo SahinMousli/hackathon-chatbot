@@ -4,6 +4,7 @@ import {useCallback, useEffect, useState} from 'react';
 import Message from '../../components/Message';
 import styles from './ChatPage.module.css';
 import GoalCard from 'src/components/GoalCard';
+import {initPrompt} from "src/app/utils/initPrompt";
 
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
@@ -53,29 +54,29 @@ export default function ChatPage() {
 
     const [systemPrompt, setSystemPrompt] = useState('');
 
+    const handleReset = useCallback(async () => {
+        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
+        // setMessages(msgs);
+        setGoals([]);
+
+        // Uncomment if you want the assistant to speak first.
+        const messages = await callLlmApi(msgs);
+        setMessages(messages);
+    }, [systemPrompt]);
+
     useEffect(() => {
-        const savedPrompt = localStorage.getItem('chatbotPrompt');
+        const savedPrompt = localStorage.getItem('chatbotPrompt') || initPrompt;
 
         if (savedPrompt) setSystemPrompt(savedPrompt);
 
-        // const savedMessages = localStorage.getItem(LOCAL_STORAGE_KEY);
-        // if (savedMessages) setMessages(JSON.parse(savedMessages));
-
+        const savedMessages = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (savedMessages) setMessages(JSON.parse(savedMessages));
+        // handleReset().catch(console.error);
     }, []);
 
     useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
     }, [messages]);
-
-    const handleReset = useCallback(async () => {
-        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
-        setMessages(msgs);
-        setGoals([]);
-
-        // Uncomment if you want the assistant to speak first.
-        // const messages = await callLlmApi(msgs);
-        // setMessages(messages);
-    }, [systemPrompt]);
 
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
