@@ -1,0 +1,46 @@
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .textarea {
+    width: 100%;
+    resize: none;
+    overflow-y: auto;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: black;
+    line-height: 1.4;
+  
+    scrollbar-width: none;
+  }
+  
+  .textarea::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .button {
+    align-self: flex-end;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background-color: #00817a;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .button:hover {
+    background-color: #00a79f;
+  }
+  
