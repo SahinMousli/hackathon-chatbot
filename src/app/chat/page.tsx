@@ -35,15 +35,21 @@ async function postLLM(messages: { role: string; content: string }[]) {
 }
 
 function extractGoals(result: ChatMessage): Goal[] {
-    const content = JSON.parse(result.content);
     const goals = [];
-    if (content['goals']) {
-        for (const goal of content['goals']) {
-            const title = goal['goal'].trim();
-            const focus = goal['focus'].trim();
-            goals.push({ title, focus });
+
+    try {
+        const content = JSON.parse(result.content);
+        if (content['goals']) {
+            for (const goal of content['goals']) {
+                const title = goal['goal'].trim();
+                const focus = goal['focus'].trim();
+                goals.push({title, focus});
+            }
         }
+    } catch {
+        return goals;
     }
+
     return goals;
 }
 
@@ -110,7 +116,7 @@ export default function ChatPage() {
         try {
             const result = await callAPI(newMessages);
 
-            console.log('\n\n',result)
+            console.log('\n\n', result)
             setMessages(result);
         } catch (err) {
             console.error(err);

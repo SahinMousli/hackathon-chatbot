@@ -11,9 +11,9 @@ export interface IChatGPTPayload {
 const simpleOpenAIRequest = async (payload: IChatGPTPayload) => {
   // create a new configuration object with the base path set to the Azure OpenAI endpoint
 
-  const modelName = "gpt-4o";
-  const deployment = "ispai-test-gpt4o";
-  const apiVersion = "2024-04-01-preview";
+  const modelName = "o4-mini";
+  const deployment = "o4-mini";
+  const apiVersion = "2024-12-01-preview";
 
   const openai = new AzureOpenAI({
     endpoint: process.env.AZURE_OPENAI_ENDPOINT,
@@ -23,7 +23,7 @@ const simpleOpenAIRequest = async (payload: IChatGPTPayload) => {
 
   const completion = await openai.chat.completions.create(
     {
-      temperature: 0,
+      // temperature: 0,
       messages: payload.history as never,
       stream: false,
       model: modelName
