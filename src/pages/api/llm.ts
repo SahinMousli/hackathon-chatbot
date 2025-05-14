@@ -1,11 +1,10 @@
-import { AzureOpenAI } from "openai";
+import {AzureOpenAI} from "openai";
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {ChatCompletionMessageParam} from "openai/src/resources/chat/completions/completions";
 
 // export type ConverSationStyle = "FUNNY" | "NEUTRAL" | "SAD" | "ANGRY";
 
 export interface IChatGPTPayload {
-  history: Array<ChatCompletionMessageParam>;
+  history: Array<{ role: string; content: string }>;
 }
 
 
@@ -25,7 +24,7 @@ const simpleOpenAIRequest = async (payload: IChatGPTPayload) => {
   const completion = await openai.chat.completions.create(
     {
       temperature: 0.7,
-      messages: payload.history,
+      messages: payload.history as never,
       stream: false,
       model: modelName
     }
