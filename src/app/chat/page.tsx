@@ -8,7 +8,7 @@ import GoalCard from 'src/components/GoalCard';
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
     content: string;
-    metadata?: object;
+    visibleText?: object;
 };
 
 type Goal = {
@@ -19,6 +19,7 @@ type Goal = {
 const LOCAL_STORAGE_KEY = 'chatMessages';
 
 async function callLlmApi(messages: { role: string; content: string }[]) {
+
     const response = await fetch('/api/llm', {
         method: 'POST',
         headers: {
@@ -79,7 +80,7 @@ export default function ChatPage() {
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
 
-        const userMessage: ChatMessage = {role: 'user', content: input};
+        const userMessage: ChatMessage = {role: 'user', content: input, visibleText: input};
         const newMessages = [...messages, userMessage];
 
         setMessages(newMessages);
@@ -94,12 +95,12 @@ export default function ChatPage() {
             const lastMsg = result[result.length - 1];
             const newGoals = extractGoals(lastMsg);
             if (!!newGoals && newGoals.length > 0) {
-                const lastMsg = result[result.length - 1];
-                lastMsg.metadata.originalResponse = lastMsg.content;
-                lastMsg.content = "Great! I've saved these goals for you. They're in the Goals section below.";
-
                 setGoals([...goals, ...newGoals]);
             }
+
+            lastMsg.visibleText = JSON.parse(lastMsg.content).text;
+
+            console.log('\n\n',result)
             setMessages(result);
         } catch (err) {
             console.error(err);
@@ -110,7 +111,7 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
             <div className={styles.messagesWindow}>
                 {messages.map((msg, i) => (
-                    <Message key={i} role={msg.role} content={msg.content}/>
+                    <Message key={i} role={msg.role} visibleText={msg.visibleText}/>
                 ))}
             </div>
 
