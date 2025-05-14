@@ -19,7 +19,7 @@ type Goal = {
 
 const LOCAL_STORAGE_KEY = 'chatMessages';
 
-async function callLlmApi(messages: { role: string; content: string }[]) {
+async function postLLM(messages: { role: string; content: string }[]) {
 
     const response = await fetch('/api/llm', {
         method: 'POST',
@@ -60,7 +60,7 @@ export default function ChatPage() {
         setGoals([]);
 
         // Uncomment if you want the assistant to speak first.
-        const messages = await callLlmApi(msgs);
+        const messages = await callAPI(msgs);
         setMessages(messages);
     }, [systemPrompt]);
 
@@ -78,6 +78,23 @@ export default function ChatPage() {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
     }, [messages]);
 
+    async function callAPI(messages: ChatMessage[]) {
+        const result = await postLLM(messages);
+
+        const lastMsg = result[result.length - 1];
+        const newGoals = extractGoals(lastMsg);
+        if (!!newGoals && newGoals.length > 0) {
+            setGoals([...goals, ...newGoals]);
+        }
+
+        try {
+            lastMsg.visibleText = JSON.parse(lastMsg.content).text;
+        } catch {
+            lastMsg.visibleText = lastMsg.content;
+        }
+        return result;
+    }
+
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
 
@@ -91,19 +108,7 @@ export default function ChatPage() {
         }
 
         try {
-            const result = await callLlmApi(newMessages);
-
-            const lastMsg = result[result.length - 1];
-            const newGoals = extractGoals(lastMsg);
-            if (!!newGoals && newGoals.length > 0) {
-                setGoals([...goals, ...newGoals]);
-            }
-
-            try {
-                lastMsg.visibleText = JSON.parse(lastMsg.content).text;
-            } catch {
-                lastMsg.visibleText = lastMsg.content;
-            }
+            const result = await callAPI(newMessages);
 
             console.log('\n\n',result)
             setMessages(result);
