@@ -5,6 +5,7 @@
     padding: 24px;
     box-sizing: border-box;
     overflow-y: auto;
+    position: relative;
   }
   
   .messagesWindow {
@@ -13,11 +14,13 @@
     min-height: 300px;
     max-height: 400px;
     overflow-y: auto;
+    overflow-inline: visible;
     padding: 16px;
     background-color: #f5f5f5;
     border: 2px solid #00817a;
     border-radius: 8px;
     margin-bottom: 12px;
+    position: relative;
   }
   
   .inputRow {

@@ -4,6 +4,7 @@ import Message from '../../components/Message';
 import styles from './ChatPage.module.css';
 import GoalCard from 'src/components/GoalCard';
 import {initPrompt} from "src/app/utils/initPrompt";
+import Spinner from "src/components/Spinner";
 
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
@@ -54,21 +55,12 @@ function extractGoals(result: ChatMessage): Goal[] {
 
 export default function ChatPage() {
     const endRef = useRef<HTMLDivElement>(null);
+    const loadingRef = useRef<boolean>(true);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [goals, setGoals] = useState<Goal[]>([]);
 
     const [systemPrompt, setSystemPrompt] = useState('');
-
-    const handleReset = useCallback(async () => {
-        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
-        setMessages(msgs);
-        setGoals([]);
-
-        // Uncomment if you want the assistant to speak first.
-        const messages = await callAPI(msgs);
-        setMessages(messages);
-    }, [systemPrompt]);
 
     useEffect(() => {
         const savedPrompt = localStorage.getItem('chatbotPrompt') || initPrompt;
@@ -77,14 +69,14 @@ export default function ChatPage() {
 
         const savedMessages = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (savedMessages) setMessages(JSON.parse(savedMessages));
-        // handleReset().catch(console.error);
     }, []);
 
     useEffect(() => {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
     }, [messages]);
 
-    const callAPI = useCallback(async(messages: ChatMessage[]) => {
+    const callAPI = useCallback(async (messages: ChatMessage[]) => {
+        loadingRef.current = true;
         const result = await postLLM(messages);
 
         const lastMsg = result[result.length - 1];
@@ -98,8 +90,21 @@ export default function ChatPage() {
         } catch {
             lastMsg.visibleText = lastMsg.content;
         }
+        loadingRef.current = false;
         return result;
-    }, [goals]);
+    }, [goals, loadingRef]);
+
+
+    const handleReset = useCallback(async () => {
+        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
+        setMessages(msgs);
+        setGoals([]);
+
+        // Uncomment if you want the assistant to speak first.
+        const messages = await callAPI(msgs);
+        setMessages(messages);
+    }, [systemPrompt, callAPI]);
+
 
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
@@ -136,6 +141,7 @@ export default function ChatPage() {
                 {messages.map((msg, i) => (
                     <Message key={i} role={msg.role} visibleText={msg.visibleText || msg.content}/>
                 ))}
+                {loadingRef.current && <Spinner />}
                 <div id={'endBlock'} ref={endRef} style={{height: 0, visibility: 'hidden'}}/>
             </div>
 
@@ -148,7 +154,7 @@ export default function ChatPage() {
                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                 />
                 <button onClick={handleSend}>Send</button>
-                <button onClick={handleReset}>Reset</button>
+                <button onClick={handleReset}>Start again</button>
             </div>
 
             <div className={styles.goalsSection}>
@@ -160,7 +166,6 @@ export default function ChatPage() {
                 </div>
             </div>
         </div>
-
 
     );
 }
