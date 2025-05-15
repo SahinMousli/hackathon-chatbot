@@ -1,6 +1,5 @@
 'use client';
-
-import {useCallback, useEffect, useState} from 'react';
+import {useRef, useCallback, useEffect, useState} from 'react';
 import Message from '../../components/Message';
 import styles from './ChatPage.module.css';
 import GoalCard from 'src/components/GoalCard';
@@ -54,6 +53,7 @@ function extractGoals(result: ChatMessage): Goal[] {
 }
 
 export default function ChatPage() {
+    const endRef = useRef<HTMLDivElement>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState('');
     const [goals, setGoals] = useState<Goal[]>([]);
@@ -84,7 +84,7 @@ export default function ChatPage() {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(messages));
     }, [messages]);
 
-    async function callAPI(messages: ChatMessage[]) {
+    const callAPI = useCallback(async(messages: ChatMessage[]) => {
         const result = await postLLM(messages);
 
         const lastMsg = result[result.length - 1];
@@ -99,7 +99,7 @@ export default function ChatPage() {
             lastMsg.visibleText = lastMsg.content;
         }
         return result;
-    }
+    }, [goals]);
 
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
@@ -108,6 +108,7 @@ export default function ChatPage() {
         const newMessages = [...messages, userMessage];
 
         setMessages(newMessages);
+        setInput("");
 
         if (messages.length === 0) {
             return
@@ -115,13 +116,19 @@ export default function ChatPage() {
 
         try {
             const result = await callAPI(newMessages);
-
             console.log('\n\n', result)
             setMessages(result);
         } catch (err) {
             console.error(err);
         }
-    }, [input, messages, goals]);
+    }, [callAPI, input, messages]);
+
+
+    useEffect(() => {
+        if (endRef.current) {
+            endRef.current.scrollIntoView({behavior: 'smooth'});
+        }
+    }, [messages]);
 
     return (
         <div className={styles.chatContainer}>
@@ -129,6 +136,7 @@ export default function ChatPage() {
                 {messages.map((msg, i) => (
                     <Message key={i} role={msg.role} visibleText={msg.visibleText || msg.content}/>
                 ))}
+                <div id={'endBlock'} ref={endRef} style={{height: 0, visibility: 'hidden'}}/>
             </div>
 
             <div className={styles.inputRow}>
@@ -150,14 +158,6 @@ export default function ChatPage() {
                         <GoalCard key={i} title={goal.title} summary={goal.focus}></GoalCard>
                     ))}
                 </div>
-                {/*<GoalCard*/}
-                {/*    title="Finish Chapter 5 - Biology"*/}
-                {/*    summary="Review key concepts like DNA replication and complete textbook exercises."*/}
-                {/*/>*/}
-                {/*<GoalCard*/}
-                {/*    title="Practice Calculus Problems"*/}
-                {/*    summary="Solve at least 10 integration problems from the worksheet."*/}
-                {/*/>*/}
             </div>
         </div>
 
