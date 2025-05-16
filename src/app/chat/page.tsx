@@ -2,10 +2,10 @@
 import { useRef, useCallback, useEffect, useState } from 'react';
 import Message from '../../components/Message';
 import styles from './ChatPage.module.css';
-// import GoalCard from 'src/components/GoalCard';
+import GoalCard from 'src/components/GoalCard';
 import { initPrompt } from "src/app/utils/initPrompt";
 import Spinner from "src/components/Spinner";
-import Table from 'src/components/Table';
+// import Table from 'src/components/Table';
 
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
@@ -158,7 +158,7 @@ export default function ChatPage() {
                 <button onClick={handleReset}>Start again</button>
             </div>
 
-            <div style={{width:600}}>
+            {/* <div style={{width:600}}>
                 <Table
                     data={[
                         { practice_activities: 'Write a blog post', relevance: 'High', effort: 'Medium' },
@@ -170,16 +170,16 @@ export default function ChatPage() {
                         { key: 'effort', label: 'Effort' },
                     ]}
                     />
-            </div>
+            </div> */}
 
-            {/* <div className={styles.goalsSection}>
+            <div className={styles.goalsSection}>
                 <h2>Your Study Goals</h2>
                 <div>
                     {goals.map((goal, i) => (
                         <GoalCard key={i} title={goal.title} summary={goal.focus}></GoalCard>
                     ))}
                 </div>
-            </div> */}
+            </div>
         </div>
 
     );
