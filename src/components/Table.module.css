@@ -1,0 +1,20 @@
+.tHeader {
+    padding: 4px 12px;
+    text-align: left;
+    font-weight: 600;
+  }
+  
+  .rowStyle {
+    vertical-align: middle;
+    border-bottom: 1px solid #c5caca;
+  }
+  
+  .colStyle {
+    border-bottom: 1px solid #c5caca;
+    vertical-align: top;
+  }
+  
+  .tRow {
+    padding: 12px;
+  }
+  

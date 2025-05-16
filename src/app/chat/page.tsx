@@ -1,10 +1,11 @@
 'use client';
-import {useRef, useCallback, useEffect, useState} from 'react';
+import { useRef, useCallback, useEffect, useState } from 'react';
 import Message from '../../components/Message';
 import styles from './ChatPage.module.css';
-import GoalCard from 'src/components/GoalCard';
-import {initPrompt} from "src/app/utils/initPrompt";
+// import GoalCard from 'src/components/GoalCard';
+import { initPrompt } from "src/app/utils/initPrompt";
 import Spinner from "src/components/Spinner";
+import Table from 'src/components/Table';
 
 type ChatMessage = {
     role: 'user' | 'assistant' | 'system';
@@ -26,7 +27,7 @@ async function postLLM(messages: { role: string; content: string }[]) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({history: messages})
+        body: JSON.stringify({ history: messages })
     });
     if (!response.ok) {
         throw new Error('Failed to fetch from LLM API');
@@ -43,7 +44,7 @@ function extractGoals(result: ChatMessage): Goal[] {
             for (const goal of content['goals']) {
                 const title = goal['goal'].trim();
                 const focus = goal['focus'].trim();
-                goals.push({title, focus});
+                goals.push({ title, focus });
             }
         }
     } catch {
@@ -96,7 +97,7 @@ export default function ChatPage() {
 
 
     const handleReset = useCallback(async () => {
-        const msgs: ChatMessage[] = [{"role": "system", "content": systemPrompt, "visibleText": ''}];
+        const msgs: ChatMessage[] = [{ "role": "system", "content": systemPrompt, "visibleText": '' }];
         setMessages(msgs);
         setGoals([]);
 
@@ -109,7 +110,7 @@ export default function ChatPage() {
     const handleSend = useCallback(async () => {
         if (!input.trim()) return;
 
-        const userMessage: ChatMessage = {role: 'user', content: input, visibleText: input};
+        const userMessage: ChatMessage = { role: 'user', content: input, visibleText: input };
         const newMessages = [...messages, userMessage];
 
         setMessages(newMessages);
@@ -131,7 +132,7 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (endRef.current) {
-            endRef.current.scrollIntoView({behavior: 'smooth'});
+            endRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [messages]);
 
@@ -139,10 +140,10 @@ export default function ChatPage() {
         <div className={styles.chatContainer}>
             <div className={styles.messagesWindow}>
                 {messages.map((msg, i) => (
-                    <Message key={i} role={msg.role} visibleText={msg.visibleText || msg.content}/>
+                    <Message key={i} role={msg.role} visibleText={msg.visibleText || msg.content} />
                 ))}
                 {loadingRef.current && <Spinner />}
-                <div id={'endBlock'} ref={endRef} style={{height: 0, visibility: 'hidden'}}/>
+                <div id={'endBlock'} ref={endRef} style={{ height: 0, visibility: 'hidden' }} />
             </div>
 
             <div className={styles.inputRow}>
@@ -157,14 +158,28 @@ export default function ChatPage() {
                 <button onClick={handleReset}>Start again</button>
             </div>
 
-            <div className={styles.goalsSection}>
+            <div style={{width:600}}>
+                <Table
+                    data={[
+                        { practice_activities: 'Write a blog post', relevance: 'High', effort: 'Medium' },
+                        { practice_activities: 'Review flashcards', relevance: 'Medium', effort: 'Low' },
+                    ]}
+                    columns={[
+                        { key: 'practice_activities', label: 'Practice Activities', sortable: true },
+                        { key: 'relevance', label: 'Relevance' },
+                        { key: 'effort', label: 'Effort' },
+                    ]}
+                    />
+            </div>
+
+            {/* <div className={styles.goalsSection}>
                 <h2>Your Study Goals</h2>
                 <div>
                     {goals.map((goal, i) => (
                         <GoalCard key={i} title={goal.title} summary={goal.focus}></GoalCard>
                     ))}
                 </div>
-            </div>
+            </div> */}
         </div>
 
     );
